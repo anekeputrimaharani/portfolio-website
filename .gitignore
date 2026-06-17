@@ -1,0 +1,17 @@
+# Folder sistem
+.DS_Store
+Thumbs.db
+
+# Folder editor/IDE
+.vscode/
+.idea/
+node_modules/
+
+# File dokumen pribadi 
+*.pdf
+*.docx
+*.doc
+
+# Abaikan file log atau file backup
+*.log
+*.tmp
