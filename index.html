@@ -614,6 +614,13 @@
       border: 1px solid var(--border-dark);
     }
 
+    .badge-winner {
+      background: linear-gradient(135deg, #FFD700 0%, #F59E0B 100%);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
+    }
+
     .badge-solo {
       background: #F0FFF4;
       color: #276749;
@@ -1398,15 +1405,17 @@
         type: 'UI/UX Design · Competition',
         badge: 'Team', 
         badgeClass: 'badge-team', 
-        status: 'On going', 
-        image: 'assets/images/UPTERRA_Mockup.jpg', 
+        status: '1st Place Winner',
+        statusClass: 'badge-winner', 
+        image: ['assets/images/UPTERRA_Mockup.jpg', 'assets/images/foto_piala.jpg'],
         desc: 'A household waste management app designed for the Undhira Innovatian Awards (UIA) competition. Features include waste scanning, a recycling marketplace, community reporting, and profile management — designed end-to-end in Figma with a focus on intuitive user flows.',
         tech: ['Figma', 'UI/UX Design', 'Prototyping'],
         highlights: [
-          { label: 'Year', val: ' May 2026 - Present' },
+          { label: 'Year', val: ' May 2026 - July 2026' },
           { label: 'My Role', val: 'UI/UX Designer' },
           { label: 'Platform', val: 'Mobile App' },
-          { label: 'Context', val: 'Undhira Innovatian Awards (UIA) Competition' }
+          { label: 'Context', val: 'Undhira Innovatian Awards (UIA) Competition' },
+          { label: 'Achievement', val: '1st Place Winner (July 2)' }
         ],
         links: [{ label: '<i class="fa-brands fa-figma"></i> Figma Prototype', href: 'https://www.figma.com/design/XPpaTXYIoUwDXUrKndEJgy/UPTERRA-UI-UX-DESIGN?node-id=0-1&t=4IUu0T7txZSarteD-1', primary: true }]
       },
@@ -1485,7 +1494,7 @@
         card.className = 'c-card ' + getPos(i);
         card.dataset.idx = i;
 
-        const statusTag = p.status ? `<span class="badge badge-ongoing" style="position: absolute; top: 2rem; right: 2rem;">${p.status}</span>` : '';
+        const statusTag = p.status ? `<span class="badge ${p.statusClass || 'badge-ongoing'}" style="position: absolute; top: 2rem; right: 2rem; z-index: 10;">${p.status}</span>` : '';
 
         card.innerHTML = `
       ${statusTag}
@@ -1557,6 +1566,20 @@
       if (dx > 50) { current = (current - 1 + N) % N; updateCarousel(); }
     });
 
+    let modalImgArray = [];
+    let modalImgIndex = 0;
+
+    // Fungsi untuk menggeser gambar di dalam modal
+    window.changeModalImg = function(direction) {
+      modalImgIndex += direction;
+      // Kembali ke awal jika sudah di gambar terakhir
+      if (modalImgIndex >= modalImgArray.length) modalImgIndex = 0;
+      // Mundur ke gambar terakhir jika di klik prev dari gambar pertama
+      if (modalImgIndex < 0) modalImgIndex = modalImgArray.length - 1;
+      
+      document.getElementById('modal-main-img').src = modalImgArray[modalImgIndex];
+    };
+
     // MODAL LOGIC 
     function openModal(idx) {
       const p = projects[idx];
@@ -1566,14 +1589,46 @@
 
       let modalBadgesHTML = `<span class="badge ${p.badgeClass}">${p.badge}</span>`;
       if (p.status) {
-        modalBadgesHTML += ` <span class="badge badge-ongoing">${p.status}</span>`;
+        modalBadgesHTML += ` <span class="badge ${p.statusClass || 'badge-ongoing'}">${p.status}</span>`;
       }
       document.getElementById('m-badges').innerHTML = modalBadgesHTML;
 
-      // Logika render gambar adaptif sesuai dimensi asli file eksport Figma
+      // Logika Slideshow/Carousel untuk Gambar di Modal
       const showcaseEl = document.getElementById('m-showcase');
-      if (p.image && p.image.trim() !== '') {
-        showcaseEl.innerHTML = `<img src="${p.image}" alt="${p.title}" style="width: 100%; height: auto; display: block;" />`;
+      const imgArray = p.images || (Array.isArray(p.image) ? p.image : null);
+
+      if (imgArray && imgArray.length > 0) {
+        if (imgArray.length === 1) {
+          // Jika hanya ada 1 gambar, tampilkan biasa tanpa panah
+          showcaseEl.innerHTML = `<img src="${imgArray[0]}" alt="${p.title}" style="width: 100%; height: auto; display: block; border-radius: 8px;" />`;
+        } else {
+          // Jika gambar lebih dari 1, simpan array-nya dan reset index
+          modalImgArray = imgArray;
+          modalImgIndex = 0;
+
+          // Buat layout slider dengan tombol panah Kiri dan Kanan
+          showcaseEl.innerHTML = `
+            <div style="position: relative; width: 100%; border-radius: 8px; border: 1px solid var(--border); overflow: hidden;">
+              <img id="modal-main-img" src="${modalImgArray[0]}" alt="${p.title}" style="width: 100%; height: auto; display: block; transition: opacity 0.3s;" />
+              
+              <!-- Tombol Panah Kiri -->
+              <button onclick="changeModalImg(-1)" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.85); border: 1px solid var(--border-dark); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 14px; transition: background 0.2s;">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+
+              <!-- Tombol Panah Kanan -->
+              <button onclick="changeModalImg(1)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.85); border: 1px solid var(--border-dark); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 14px; transition: background 0.2s;">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          `;
+        }
+        showcaseEl.style.border = 'none';
+        showcaseEl.style.background = 'transparent';
+        showcaseEl.style.height = 'auto'; 
+      } else if (typeof p.image === 'string' && p.image.trim() !== '') {
+        // Fallback untuk string gambar satuan
+        showcaseEl.innerHTML = `<img src="${p.image}" alt="${p.title}" style="width: 100%; height: auto; display: block; border-radius: 8px;" />`;
         showcaseEl.style.border = 'none';
         showcaseEl.style.height = 'auto'; 
       } else {
@@ -1587,16 +1642,16 @@
       }
 
       document.getElementById('m-desc').textContent = p.desc;
-      document.getElementById('m-tech').innerHTML = p.tech.map(t => `<span class="modal-pill">${t}</span>`).join('');
-      document.getElementById('m-highlights').innerHTML = p.highlights.map(h => `
-    <div class="modal-highlight-card">
-      <div class="modal-highlight-label">${h.label}</div>
-      <div class="modal-highlight-val">${h.val}</div>
-    </div>
-  `).join('');
       
-      // Mengarahkan tombol aksi untuk dirender pada container absolut bagian atas kanan modal
-      document.getElementById('m-actions-top').innerHTML = p.links.map(l =>
+      document.getElementById('m-tech').innerHTML = (p.tech || []).map(t => `<span class="modal-pill">${t}</span>`).join('');
+      document.getElementById('m-highlights').innerHTML = (p.highlights || []).map(h => `
+        <div class="modal-highlight-card">
+          <div class="modal-highlight-label">${h.label}</div>
+          <div class="modal-highlight-val">${h.val}</div>
+        </div>
+      `).join('');
+      
+      document.getElementById('m-actions-top').innerHTML = (p.links || []).map(l =>
         `<a class="modal-link-btn ${l.primary ? 'btn-primary' : 'btn-secondary'}" href="${l.href}" target="_blank">${l.label}</a>`
       ).join('') || ''; 
 
